@@ -1,0 +1,201 @@
+{
+  "school": "spell_power:healing",
+  "range": 3.0,
+  "tier": 0,
+  "learn": {},
+  "active": {
+    "scroll": {},
+    "cast": {
+      "duration": 1.25,
+      "animation": "basic-skill-sets:slam_jump",
+      "sound": {
+        "id": "spell_engine:generic_healing_casting"
+      },
+      "particles": [
+        {
+          "particle_id": "spell_engine:magic_holy_spell_ascend",
+          "origin": "FEET",
+          "shape": "WIDE_PIPE",
+          "count": 1.0,
+          "min_speed": 0.05,
+          "max_speed": 0.1
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": "basic-skill-sets:slam_end",
+    "particles": [
+      {
+        "particle_id": "spell_engine:magic_holy_spark_ascend",
+        "origin": "FEET",
+        "shape": "CIRCLE",
+        "count": 30.0,
+        "min_speed": 0.8
+      },
+      {
+        "particle_id": "spell_engine:magic_holy_spell_ascend",
+        "origin": "FEET",
+        "shape": "CIRCLE",
+        "count": 10.0,
+        "min_speed": 0.5
+      },
+      {
+        "particle_id": "spell_engine:magic_holy_stripe_ascend",
+        "origin": "FEET",
+        "shape": "CIRCLE",
+        "count": 10.0,
+        "min_speed": 0.5
+      }
+    ],
+    "sound": {
+      "id": "spell_engine:generic_healing_release"
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {
+      "sticky": true
+    }
+  },
+  "deliver": {
+    "type": "METEOR",
+    "meteor": {
+      "launch_height": 0.0,
+      "projectile": {
+        "client_data": {
+          "model": {
+            "scale": 0.0
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "school": "spell_power:healing",
+      "target_modifiers": [
+        {
+          "conditions": [
+            {
+              "entity_type": "#minecraft:undead"
+            }
+          ],
+          "modifier": {
+            "critical_chance_bonus": 1.0
+          }
+        }
+      ],
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "spell_power_coefficient": 1.2
+        }
+      },
+      "particles": [
+        {
+          "particle_id": "spell_engine:magic_holy_impact_burst",
+          "origin": "CENTER",
+          "shape": "CIRCLE",
+          "rotation": "LOOK",
+          "count": 20.0,
+          "min_speed": 0.2,
+          "max_speed": 0.7,
+          "angle": 360.0
+        }
+      ],
+      "sound": {
+        "id": "spell_engine:generic_healing_impact_1"
+      }
+    },
+    {
+      "school": "spell_power:physical_melee",
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "spell_power_coefficient": 2.4
+        }
+      }
+    },
+    {
+      "school": "spell_power:healing",
+      "target_modifiers": [
+        {
+          "conditions": [
+            {
+              "entity_type": "#spell_engine:mechanical"
+            }
+          ],
+          "execute": "DENY",
+          "modifier": {}
+        }
+      ],
+      "action": {
+        "type": "HEAL",
+        "heal": {
+          "spell_power_coefficient": 1.2
+        }
+      },
+      "particles": [
+        {
+          "particle_id": "spell_engine:magic_holy_impact_ascend",
+          "origin": "FEET",
+          "shape": "PIPE",
+          "count": 20.0,
+          "min_speed": 0.2,
+          "max_speed": 0.7,
+          "angle": 360.0
+        },
+        {
+          "particle_id": "spell_engine:magic_holy_spell_float",
+          "origin": "FEET",
+          "shape": "PIPE",
+          "count": 20.0,
+          "min_speed": 0.1,
+          "max_speed": 0.35,
+          "angle": 360.0
+        }
+      ],
+      "sound": {
+        "id": "spell_engine:generic_healing_impact_1"
+      }
+    }
+  ],
+  "area_impact": {
+    "radius": 4.0,
+    "particles": [
+      {
+        "particle_id": "spell_engine:magic_holy_spark_float",
+        "origin": "CENTER",
+        "shape": "SPHERE",
+        "count": 100.0,
+        "min_speed": 0.6,
+        "angle": 360.0
+      },
+      {
+        "particle_id": "spell_engine:magic_holy_spell_float",
+        "origin": "CENTER",
+        "shape": "SPHERE",
+        "count": 100.0,
+        "min_speed": 0.4,
+        "max_speed": 0.8,
+        "angle": 360.0
+      },
+      {
+        "particle_id": "minecraft:smoke",
+        "origin": "CENTER",
+        "shape": "SPHERE",
+        "count": 50.0,
+        "min_speed": 0.4,
+        "max_speed": 0.8,
+        "angle": 360.0
+      }
+    ]
+  },
+  "cost": {
+    "cooldown": {
+      "duration": 4.0
+    }
+
+  }
+}

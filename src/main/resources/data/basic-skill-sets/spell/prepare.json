@@ -1,0 +1,74 @@
+{
+  "school": "PHYSICAL_MELEE",
+  "tier": 0,
+  "learn": { },
+  "type": "ACTIVE",
+  "range": 0.0,
+  "range_mechanic": "MELEE",
+  "active": {
+    "cast": {
+      "duration": 8,
+      "animation": "basic-skill-sets:stabstart",
+      "channel_ticks": 1
+    }
+  },
+  "target": {
+    "type": "AREA",
+    "area": {
+      "angle_degrees": 30,
+      "vertical_range_multiplier": 1
+    }
+  },
+  "deliver": {
+    "type": "CUSTOM",
+    "custom": {
+      "handler": "basic-skill-sets:prepare"
+    }
+  },
+  "release": {
+    "sound": {
+      "id": "minecraft:entity.player.attack.knockback"
+    },
+    "animation": "basic-skill-sets:stabend"
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "knockback": 1,
+          "spell_power_coefficient": 1.8
+        }
+      },
+      "particles": [
+        {
+          "particle_id": "sweep_attack",
+          "shape": "SPHERE",
+          "origin": "CENTER",
+          "count": 1
+        }
+      ],
+      "sound": {
+        "id": "minecraft:entity.player.attack.sweep"
+      }
+    },
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "slowness",
+          "duration": 1,
+          "apply_mode": "SET",
+          "amplifier": 9,
+          "show_particles": false
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.4,
+    "cooldown": {
+      "duration": 10
+    }
+  }
+}

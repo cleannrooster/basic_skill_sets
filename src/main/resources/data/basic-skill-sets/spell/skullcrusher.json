@@ -1,0 +1,92 @@
+{
+  "school": "PHYSICAL_MELEE",
+  "range": 3.0,
+  "tier": 0,
+  "learn": {},
+  "active": {
+    "scroll": {},
+    "cast": {
+      "duration": 1.25,
+      "animation": "basic-skill-sets:slam_jump",
+      "sound": {
+        "id": "spell_engine:generic_healing_casting"
+      }
+    }
+  },
+  "release": {
+    "animation": "basic-skill-sets:slam_end",
+    "sound": {
+      "id": "entity.generic.explode"
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {
+      "sticky": true
+    }
+  },
+  "deliver": {
+    "type": "METEOR",
+    "meteor": {
+      "launch_height": 0.0,
+      "projectile": {
+        "client_data": {
+          "model": {
+            "scale": 0.0
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "school": "PHYSICAL_MELEE",
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "spell_power_coefficient": 3.6
+        }
+      },
+      "particles": [
+        {
+          "particle_id": "cloud",
+          "shape": "SPHERE",
+          "origin": "CENTER",
+          "count": 20.0,
+          "min_speed": 0.5,
+          "max_speed": 0.9
+        }
+      ],
+      "sound": {
+        "id": "entity.iron_golem.hurt"
+      }
+    }
+  ],
+  "area_impact": {
+    "radius": 4.0,
+    "particles": [
+      {
+        "particle_id": "smoke",
+        "shape": "CIRCLE",
+        "origin": "CENTER",
+        "count": 60.0,
+        "min_speed": 0.2,
+        "max_speed": 0.6
+      },
+      {
+        "particle_id": "cloud",
+        "shape": "CIRCLE",
+        "origin": "CENTER",
+        "count": 80.0,
+        "min_speed": 0.5,
+        "max_speed": 0.9
+      }
+    ]
+  },
+  "cost": {
+    "cooldown": {
+      "duration": 4.0
+    }
+
+  }
+}

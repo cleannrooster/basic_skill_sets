@@ -1,0 +1,79 @@
+{
+  "school": "spell_power:physical_melee",
+  "range": 64.0,
+  "tier": 0,
+  "learn": {},
+  "active": {
+    "cast": {
+      "animation": "basic-skill-sets:spearthrow_charge",
+
+      "duration": 1
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {}
+  },
+  "release": {
+    "animation": "basic-skill-sets:spearthrow_throw",
+    "sound": {
+      "id": "minecraft:entity.player.attack.sweep"
+    }
+  },
+  "deliver": {
+      "type": "PROJECTILE",
+      "projectile": {
+        "launch_properties": {
+          "velocity": 3
+        },
+        "projectile": {
+          "homing_angle": 2.0,
+          "perks": {
+            "bounce": 1
+          },
+          "client_data": {
+            "travel_particles": [ ],
+            "model": {
+              "use_held_item": true,
+              "scale": 1,
+              "light_emission": "NONE",
+              "rotate_degrees_per_tick": 0,
+              "rotate_degrees_offset": -135,
+              "orientation": "ALONG_MOTION"
+            }
+          },
+          "travel_sound_interval": 8,
+          "travel_sound": {
+            "id": "minecraft:entity.player.attack.sweep"
+          }
+        }
+    },
+    "animation": "basic-skill-sets:spearthrow_throw",
+    "sound": {
+      "id": "minecraft:entity.player.attack.sweep"
+    }
+  },
+  "impacts": [
+    {
+      "school": "PHYSICAL_MELEE",
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "knockback": 1.5,
+          "spell_power_coefficient": 1.8
+        }
+      },
+      "particles": [
+        {
+          "particle_id": "sweep_attack",
+          "shape": "SPHERE",
+          "origin": "CENTER",
+          "count": 1
+        }
+      ],
+      "sound": {
+        "id": "minecraft:entity.player.attack.sweep"
+      }
+    }
+  ]
+}

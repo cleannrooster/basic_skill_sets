@@ -1,0 +1,20 @@
+{
+  "spell.basic-skill-sets.cleave.name": "Cleave",
+  "spell.basic-skill-sets.cleave.description": "Cleave an area in front of you, dealing {damage} physical damage.",
+  "spell.basic-skill-sets.devastating_cut.name": "Devastating Cut",
+  "spell.basic-skill-sets.devastating_cut.description": "Deal {damage} physical damage to enemies in an area in front of you, then immediately teleport forward a short distance.",
+  "spell.basic-skill-sets.flourish.name": "Cleave",
+  "spell.basic-skill-sets.flourish.description": "Cleave an area in front of you, dealing {damage} physical damage.",
+  "spell.basic-skill-sets.knife_throw.name": "Dagger Toss",
+  "spell.basic-skill-sets.knife_throw.description": "Throw your dagger forward, dealing {damage} physical damage to enemies hit.",
+  "spell.basic-skill-sets.skullcrusher.name": "Skullcrusher",
+  "spell.basic-skill-sets.skullcrusher.description": "Bring your weapon down with a mighty downward heave, dealing {damage} physical damage in an area..",
+  "spell.basic-skill-sets.prepare.name": "Impale",
+  "spell.basic-skill-sets.prepare.description": "Get ready to impale the first enemy in an area in front of you, dealing {damage} to the enemies that walk in the area.",
+  "spell.basic-skill-sets.slam.name": "Smite",
+  "spell.basic-skill-sets.slam.description": "Bring down your weapon, dealing {damage_1} physical damage and {damage_2} holy damage in an area.",
+  "spell.basic-skill-sets.vaulting_slam.name": "Vaulting Slam",
+  "spell.basic-skill-sets.vaulting_slam.description": "Vault into the air and slam the ground, dealing {damage} physical damage.",
+  "spell.basic-skill-sets.whirling_assault.name": "Whirling Assault",
+  "spell.basic-skill-sets.whirling_assault.description": "Assail nearby enemies with a series of whirling strikes, dealing {damage} dps for a short duration."
+}

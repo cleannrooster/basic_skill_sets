@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "com.cleannrooster.basic_skill_sets.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"ExampleMixin",
+		"SpellCastMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

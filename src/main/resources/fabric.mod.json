@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "basic-skill-sets",
+	"version": "${version}",
+	"name": "Basic Skill Sets",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/basic-skill-sets/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.cleannrooster.basic_skill_sets.BasicSkillSets"
+		],
+		"client": [
+			"com.cleannrooster.basic_skill_sets.BasicSkillSetsClient"
+
+		]
+	},
+	"mixins": [
+		"basic-skill-sets.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"spell_engine": ">=1.7.0+1.21.1",
+		"bettercombat": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

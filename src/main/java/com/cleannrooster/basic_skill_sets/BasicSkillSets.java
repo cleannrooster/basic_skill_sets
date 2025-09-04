@@ -5,13 +5,28 @@ import net.bettercombat.config.FallbackConfig;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.spell_engine.api.effect.Effects;
+import net.spell_engine.api.effect.SpellEngineEffects;
+import net.spell_engine.api.event.CombatEvents;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.api.spell.registry.SpellRegistry;
+import net.spell_engine.client.input.Keybindings;
 import net.spell_engine.entity.SpellProjectile;
+import net.spell_engine.internals.SpellHelper;
+import net.spell_engine.internals.casting.SpellCast;
+import net.spell_engine.internals.target.SpellTarget;
+import net.spell_engine.mixin.client.control.KeybindingAccessor;
+import net.spell_engine.utils.WorldScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +95,20 @@ public class BasicSkillSets implements ModInitializer {
 
 		}));
 
+		CombatEvents.ENTITY_SHIELD_BLOCK.register((c) ->{
+			if(c.entity() instanceof PlayerEntity player && c.source().getAttacker() != null && c.source().getAttacker().distanceTo(c.entity()) < player.getEntityInteractionRange() && c.source().getAttacker() instanceof LivingEntity living) {
+				((WorldScheduler) c.entity().getWorld()).schedule(10, () -> {
+					if (!c.entity().isBlocking() && c.source().getAttacker() != null) {
+						SpellHelper.performSpell(c.entity().getWorld(), player,SpellRegistry.from(player.getWorld()).getEntry(Identifier.of(MOD_ID,"shield_bash")).get(), new SpellTarget.SearchResult(List.of(c.source().getAttacker()),c.source().getAttacker().getPos()), SpellCast.Action.TRIGGER,1F);
+					}
+				});
+			}
+		});
+		ItemTooltipCallback.EVENT.register((itemStack,tooltipContext,tooltipType, lines)->{
+			if(itemStack.getItem() instanceof ShieldItem shieldItem){
+				lines.add(Text.translatable("text.basic-skill-sets.shield").formatted(Formatting.GRAY));
+			}
+		});
 		Spells.registerDeliveries();
 		LOGGER.info("Hello Fabric world!");
 	}

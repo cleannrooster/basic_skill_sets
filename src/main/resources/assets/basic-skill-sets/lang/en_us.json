@@ -16,5 +16,10 @@
   "spell.basic-skill-sets.vaulting_slam.name": "Vaulting Slam",
   "spell.basic-skill-sets.vaulting_slam.description": "Vault into the air and slam the ground, dealing {damage} physical damage.",
   "spell.basic-skill-sets.whirling_assault.name": "Whirling Assault",
-  "spell.basic-skill-sets.whirling_assault.description": "Assail nearby enemies with a series of whirling strikes, dealing {damage} dps for a short duration."
+  "spell.basic-skill-sets.whirling_assault.description": "Assail nearby enemies with a series of whirling strikes, dealing {damage} dps for a short duration.",
+  "spell.basic-skill-sets.shield_bash.name": "Counterattack",
+  "spell.basic-skill-sets.shield_bash.description": "Lower your shield immediately after blocking a melee attack to perform a Counterattack, dealing damage based on your weapon and briefly stunning enemies.",
+
+  "text.basic-skill-sets.shield": "Lower your shield immediately after blocking a melee attack to perform a Counterattack, dealing damage based on your weapon and briefly stunning enemies."
+
 }

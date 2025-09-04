@@ -51,7 +51,6 @@ public class Spells {
                     ParticleHelper.sendBatches(playerEntity, registryEntry.value().release.particles);
                     SoundHelper.playSound(world, playerEntity, registryEntry.value().release.sound);
                     AnimationHelper.sendAnimation(playerEntity, (Collection)trackingPlayers.get(), SpellCast.Animation.RELEASE, registryEntry.value().release.animation, 1.0F);
-
                     SpellHelper.imposeCooldown(playerEntity, SpellContainerSource.getFirstSourceOfSpell(Identifier.of(registryEntry.getIdAsString()),playerEntity),Identifier.of(registryEntry.getIdAsString()), registryEntry,1.0F);
                     return true;
                 }

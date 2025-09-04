@@ -1,0 +1,120 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"shield_bash": {
+			"animation_length": 0.75,
+			"bones": {
+				"torso": {
+					"rotation": {
+						"0.0": {
+							"vector": [7.56397, 7.43547, 0.98448]
+						},
+						"0.0417": {
+							"vector": [8.11003, 22.29711, 3.09472]
+						},
+						"0.25": {
+							"vector": [-4.23489, -24.77164, -3.48303],
+							"easing": "easeInOutBack"
+						},
+						"0.75": {
+							"vector": [7.56397, 7.43547, 0.98448],
+							"easing": "easeOutSine"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, -1]
+						},
+						"0.25": {
+							"vector": [-1, 0, 1],
+							"easing": "easeInOutBack"
+						},
+						"0.75": {
+							"vector": [0, 0, -1],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"head": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [-12.5, 5, -12.5],
+							"easing": "easeInOutBack",
+							"easingArgs": [2]
+						},
+						"0.75": {
+							"vector": [0, 0, 0],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [28.06681, 11.06861, 13.34485]
+						},
+						"0.25": {
+							"vector": [-89.4785, -75.61633, 31.79808],
+							"easing": "easeInOutBack"
+						},
+						"0.75": {
+							"vector": [28.06681, 11.06861, 13.34485],
+							"easing": "easeOutSine"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 1]
+						},
+						"0.25": {
+							"vector": [2, 0, -3],
+							"easing": "easeInOutBack"
+						},
+						"0.75": {
+							"vector": [0, 0, 1],
+							"easing": "easeOutSine"
+						}
+					}
+				},
+				"left_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [-68.15983, 64.63769, -8.4178]
+						},
+						"0.0417": {
+							"vector": [-43.30211, 77.35179, 17.66894]
+						},
+						"0.25": {
+							"vector": [-167.90937, -72.44579, 84.91749],
+							"easing": "easeInOutBack"
+						},
+						"0.75": {
+							"vector": [-68.15983, 64.63769, -8.4178],
+							"easing": "easeOutSine"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, -2]
+						},
+						"0.0417": {
+							"vector": [-2, 0, -3]
+						},
+						"0.25": {
+							"vector": [0, 0, 3],
+							"easing": "easeInOutBack"
+						},
+						"0.75": {
+							"vector": [0, 0, -2],
+							"easing": "easeOutSine"
+						}
+					}
+				}
+			}
+		}
+	},
+	"azurelib_format_version": 2
+}

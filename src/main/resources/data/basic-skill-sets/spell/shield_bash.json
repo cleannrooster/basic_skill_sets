@@ -1,0 +1,73 @@
+{
+  "school": "spell_power:healing",
+  "range": 4.0,
+  "tier": 0,
+  "learn": {},
+  "type": "PASSIVE",
+
+  "passive": {},
+
+  "release": {
+    "animation": "basic-skill-sets:shield_bash",
+    "sound": {
+      "id": "minecraft:entity.player.attack.knockback"
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {
+      "sticky": true
+    }
+  },
+  "deliver": {
+    "type": "METEOR",
+    "meteor": {
+      "launch_height": 0.0,
+      "projectile": {
+        "client_data": {
+          "model": {
+            "scale": 0.0
+          }
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "school": "PHYSICAL_MELEE",
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "spell_power_coefficient": 2.1
+        }
+      },
+      "particles": [
+        {
+          "particle_id": "cloud",
+          "shape": "SPHERE",
+          "origin": "CENTER",
+          "count": 10.0,
+          "min_speed": 0.2,
+          "max_speed": 0.3
+        }
+      ]
+    },
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "spell_engine:stun",
+          "duration": 0.5,
+          "apply_mode": "SET",
+          "show_particles": false
+        }
+      }
+    }
+  ],
+  "area_impact": {
+    "radius": 2.0
+  },
+  "cost": {
+
+  }
+}

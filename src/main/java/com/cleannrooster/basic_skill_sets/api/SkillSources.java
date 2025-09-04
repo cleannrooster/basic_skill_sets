@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static net.spell_engine.api.spell.container.SpellContainerHelper.contentTypeForSpell;
+import static net.spell_engine.api.spell.container.SpellContainerHelper.createForShield;
 
 public class SkillSources {
     public  SkillSources(LinkedHashMap<String, List<Identifier>> skillList){
@@ -90,12 +91,29 @@ public class SkillSources {
 
             return sources;
         },LivingEntity::getOffHandStack);
+        var SHIELDBASH = new SpellContainerSource.Entry("shield_bash", (player, sourceName) -> {
+            ArrayList<SpellContainerSource.SourcedContainer> sources = new ArrayList();
 
+            var item = player.getOffHandStack();
+            if(!item.isEmpty()) {
+                if (item.getItem() instanceof ShieldItem) {
+                    var source2 = createForShield( List.of(Identifier.of(BasicSkillSets.MOD_ID,"shield_bash")));
+                    sources.add(new SpellContainerSource.SourcedContainer(sourceName,item,source2));
+
+
+                }
+
+            }
+
+
+            return sources;
+        },LivingEntity::getOffHandStack);
         var SKILL_SOURCE = getEntry();
 
 
         SpellContainerSource.sources.addLast(SKILL_SOURCE);
         SpellContainerSource.sources.addLast(OFFHAND_SKILLSOURCE);
+        SpellContainerSource.sources.addLast(SHIELDBASH);
 
 
 

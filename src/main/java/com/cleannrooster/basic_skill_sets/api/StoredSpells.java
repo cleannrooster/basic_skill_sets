@@ -9,9 +9,7 @@ import java.util.List;
 public class StoredSpells {
     public static List<RegistryEntry<Spell>> spellList = new ArrayList<>();
     public static RegistryEntry<Spell> NULLSPELL;
-    static {
-        spellList = new ArrayList<>(List.of(null,null,null,null,null,null,null,null,null));
-    }
+
 
     public static void setSpellSlot(RegistryEntry<Spell> spell, int i){
         spellList.set(i,spell);

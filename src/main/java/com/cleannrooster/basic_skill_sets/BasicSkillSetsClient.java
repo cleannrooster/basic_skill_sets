@@ -5,7 +5,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.item.ShieldItem;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.spell_engine.api.spell.registry.SpellRegistry;
 import net.spell_engine.internals.casting.SpellCasterEntity;
@@ -22,6 +26,11 @@ public class BasicSkillSetsClient implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register((client) -> {
             BasicSkillSets.sources =  new SkillSources(BasicSkillSets.skills);
 
+        });
+        ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, lines)->{
+            if(itemStack.getItem() instanceof ShieldItem shieldItem){
+                lines.add(Text.translatable("text.basic-skill-sets.shield").formatted(Formatting.GRAY));
+            }
         });
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if(client.player != null && ((SpellCasterEntity)client.player).getCurrentSpell() != null &&

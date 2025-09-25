@@ -68,6 +68,8 @@
     "radius": 2.0
   },
   "cost": {
-
+    "cooldown": {
+      "duration": 0.5
+    }
   }
 }

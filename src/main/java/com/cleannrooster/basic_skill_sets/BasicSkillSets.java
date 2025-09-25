@@ -104,11 +104,7 @@ public class BasicSkillSets implements ModInitializer {
 				});
 			}
 		});
-		ItemTooltipCallback.EVENT.register((itemStack,tooltipContext,tooltipType, lines)->{
-			if(itemStack.getItem() instanceof ShieldItem shieldItem){
-				lines.add(Text.translatable("text.basic-skill-sets.shield").formatted(Formatting.GRAY));
-			}
-		});
+
 		Spells.registerDeliveries();
 		LOGGER.info("Hello Fabric world!");
 	}

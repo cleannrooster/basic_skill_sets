@@ -4,8 +4,16 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ExampleMixin",
-		"SpellCastMixin"
-	],
+		"SpellCastMixin",
+      "LivingEntityMixin",
+      "SpellHelperMixin",
+      "ClientPlayerMixin"
+
+
+    ],
+  "client": [
+    "HeldItemRendererMixin"
+  ],
 	"injectors": {
 		"defaultRequire": 1
 	}

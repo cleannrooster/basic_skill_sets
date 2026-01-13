@@ -64,7 +64,7 @@ public class ClientPlayerMixin implements HitstopAccessor {
     public void setHitstop(int hitstop) {
         this.hitstopTicks = hitstop;
     }
-    public Vec3d impulseVector;
+    public Vec3d impulseVector = Vec3d.ZERO;
 
     @Override
     public void setImpulseVector(Vec3d vec3d) {

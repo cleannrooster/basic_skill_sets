@@ -28,7 +28,7 @@ public class LivingEntityMixin implements HitstopAccessor {
     public int hitstopTicks = 0;
     private Vec3d velocityHitstop = Vec3d.ZERO;
 
-    private Vec3d impulseVector;
+    private Vec3d impulseVector = Vec3d.ZERO;
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
     public void tickHitstopHead( CallbackInfo info) {
         LivingEntity living = (LivingEntity) (Object) this;
@@ -41,9 +41,25 @@ public class LivingEntityMixin implements HitstopAccessor {
         if(!living.getWorld().isClient() &&   getImpulseVector() != null && getImpulseVector().length() > 0.02) {
             //System.out.println(getImpulseVector().length());
             if(!living.isOnGround()) {
-                setImpulseVector(getImpulseVector().multiply(0.5F));
+                setImpulseVector(getImpulseVector().multiply(0.8F));
             }
-            living.addVelocity(getImpulseVector().multiply(0.8F));
+            var toAdd = getImpulseVector().multiply(  1.0F);
+            var totalVelocity = living.getVelocity().add(toAdd);
+            var defaultMovementSpeed = 0.1F;
+            var entityMoveSpeed = living.getMovementSpeed();
+            var entityMoveSpeedCoeff = 0.5F;
+            var coeff = 4F;
+            var cap = (defaultMovementSpeed + entityMoveSpeed * entityMoveSpeedCoeff) *  coeff;
+            var capSq = cap * cap;
+            living.setVelocity(
+                    living.getVelocity().lengthSquared() > capSq ?
+                            totalVelocity.normalize().multiply(living.getVelocity().length()) :
+                    totalVelocity.lengthSquared() > capSq ?
+                    totalVelocity.normalize().multiply(cap) :
+                    totalVelocity
+            );
+
+
 
             setImpulseVector( getImpulseVector().multiply(0.666F));
             living.velocityModified = true;

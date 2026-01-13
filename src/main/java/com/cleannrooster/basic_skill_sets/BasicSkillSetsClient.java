@@ -41,7 +41,12 @@ public class BasicSkillSetsClient implements ClientModInitializer {
                         ,(float)(!attackHand.attack().hitbox().equals(WeaponAttributes.HitBoxShape.HORIZONTAL_PLANE) ? 0 : (!attackHand.isOffHand() && (!attackHand.attack().animation().contains("left") || attackHand.attack().animation().contains("right")) ? -1 : 1))
                         ,0)).add(0,attackHand.attack().hitbox().equals(WeaponAttributes.HitBoxShape.VERTICAL_PLANE) ? -1 : 0, 0);
                 var vecMoveEnemy = vec.add(vecCross.multiply(0.25));
-                ClientPlayNetworking.send(new Packet.Impulse(player.getId(),0.8F, (float) vecMoveEnemy.getX(), (float) vecMoveEnemy.getY(), (float) vecMoveEnemy.getZ()));
+                var vecMoveVelocity = player.getMovement().multiply(2);
+                if(vecMoveVelocity.length() > player.getMovementSpeed() * 2) {
+                    vecMoveVelocity = vecMoveVelocity.normalize().multiply(player.getMovementSpeed()*2);
+                }
+                vecMoveEnemy = vecMoveEnemy.add(vecMoveVelocity.multiply(1.6F));
+                ClientPlayNetworking.send(new Packet.Impulse(player.getId(),1F,0.8F, (float) vecMoveEnemy.getX(), (float) vecMoveEnemy.getY(), (float) vecMoveEnemy.getZ()));
 
 
 
@@ -98,33 +103,35 @@ public class BasicSkillSetsClient implements ClientModInitializer {
                     ,(float)(!attackHand.attack().hitbox().equals(WeaponAttributes.HitBoxShape.HORIZONTAL_PLANE) ? 0 : (!attackHand.isOffHand() && (!attackHand.attack().animation().contains("left") || attackHand.attack().animation().contains("right")) ? 1 : -1))
                     ,0)).add(0,attackHand.attack().hitbox().equals(WeaponAttributes.HitBoxShape.VERTICAL_PLANE) ? 1 : 0, 0).normalize().multiply(0.2*Math.max(0.5,1.6F/clientPlayerEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)));
             if(clientConfig.comboSpeed)
-            ClientPlayNetworking.send(new Packet.SlowFirst());
+                ClientPlayNetworking.send(new Packet.SlowFirst());
 
-                    if(clientConfig.impactRecoil && !list.isEmpty()) {
-                        var vecMoveEnemy = (vecMove).add(((HitstopAccessor) clientPlayerEntity).getVelocityHitstop() != null ? ((HitstopAccessor) clientPlayerEntity).getVelocityHitstop() : Vec3d.ZERO);
-                        ClientPlayNetworking.send(new Packet.Impulse(clientPlayerEntity.getId(),0.25F, (float) vecMoveEnemy.getX(), (float) vecMoveEnemy.getY(), (float) vecMoveEnemy.getZ()));
-                        clientPlayerEntity.velocityDirty = true;
-                    }
-
-                    for(Entity entityMove : list){
+            for(Entity entityMove : list){
                 Vec3d vecMoveEnemy = vecMove.multiply(-1F);
                 if(entityMove instanceof LivingEntity livingEntity){
+                    vecMoveEnemy.add(((HitstopAccessor)clientPlayerEntity).getImpulseVector() != null ? ((HitstopAccessor)clientPlayerEntity).getImpulseVector() : Vec3d.ZERO );
                     vecMoveEnemy = vecMoveEnemy.multiply(1F-livingEntity.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE));
                 }
-                        if(clientConfig.impactEnemy)
-                ClientPlayNetworking.send(new Packet.Impulse(entityMove.getId(),0.15F, (float) vecMoveEnemy.getX(), (float) vecMoveEnemy.getY(), (float) vecMoveEnemy.getZ()));
+                if(clientConfig.impactEnemy)
+                    ClientPlayNetworking.send(new Packet.Impulse(entityMove.getId(),1.1F, Math.min(1F,(float) (clientPlayerEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)/4)), (float) vecMoveEnemy.getX(), (float) vecMoveEnemy.getY(), (float) vecMoveEnemy.getZ()));
 
-                LivingEntity living = (LivingEntity) (Object) clientPlayerEntity;
                 if(!list.isEmpty() && clientConfig.hitstopSelf) {
-                    if (living instanceof HitstopAccessor hitstopAccessor) {
 
-                        hitstopAccessor.setHitstop((int) Math.ceil(2 * (1.6F / living.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED))));
-                        if (hitstopAccessor.getVelocityHitstop() == null) {
-                            hitstopAccessor.setVelocityHitstop(living.getVelocity());
-                            living.setVelocity(Vec3d.ZERO);
-                            living.velocityDirty = true;
-                        }
-                    }
+                }
+            }
+            if(clientConfig.impactRecoil && !list.isEmpty()) {
+                var vecMoveEnemy = ((HitstopAccessor) clientPlayerEntity).getVelocityHitstop() != null ? ((HitstopAccessor) clientPlayerEntity).getVelocityHitstop() : Vec3d.ZERO;
+                ClientPlayNetworking.send(new Packet.Impulse(clientPlayerEntity.getId(),1F,Math.min(1F,(float) (clientPlayerEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)/4)), (float) vecMoveEnemy.getX(), (float) vecMoveEnemy.getY(), (float) vecMoveEnemy.getZ()));
+                clientPlayerEntity.velocityDirty = true;
+            }
+            LivingEntity living = (LivingEntity) (Object) clientPlayerEntity;
+
+            if (clientConfig.hitstopSelf &&  living instanceof HitstopAccessor hitstopAccessor && !list.isEmpty()) {
+
+                hitstopAccessor.setHitstop((int) Math.ceil(2 * (1.6F / living.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED))));
+                if (hitstopAccessor.getVelocityHitstop() == null) {
+                    hitstopAccessor.setVelocityHitstop(living.getVelocity());
+                    living.setVelocity(Vec3d.ZERO);
+                    living.velocityDirty = true;
                 }
             }
 

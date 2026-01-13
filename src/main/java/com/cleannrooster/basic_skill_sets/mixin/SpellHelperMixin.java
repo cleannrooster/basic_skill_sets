@@ -43,7 +43,7 @@ public class SpellHelperMixin {
                             resistCoeff *= 0;
                         }
                     }
-                    hitstopAccessor.setImpulseVector(target.getBoundingBox().getCenter().subtract(context.position()).normalize().multiply(0.05F).multiply(0.5 * Math.pow(context.total() * context.power().randomValue(), 0.73118F)).multiply(resistCoeff));
+                    hitstopAccessor.setImpulseVector(hitstopAccessor.getImpulseVector().add( target.getBoundingBox().getCenter().subtract(context.position()).normalize().multiply(0.05F).multiply(0.125 * Math.pow(context.total() * context.power().randomValue(), 0.73118F)).multiply(resistCoeff)));
                 }
             }
         }

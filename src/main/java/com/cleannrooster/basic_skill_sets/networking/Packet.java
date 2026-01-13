@@ -32,7 +32,7 @@ public class Packet {
             CODEC = PacketCodec.of(Packets::write, Packets::readPacket);
         }
     }
-    public record Impulse(int id, float mag, float x, float y, float z) implements CustomPayload {
+    public record Impulse(int id, float mag, float mag2, float x, float y, float z) implements CustomPayload {
         public static Identifier ID = Identifier.of("basic-skill-sets", "move_enemy");
         public static final CustomPayload.Id<Impulse> PACKET_ID;
         public static final PacketCodec<RegistryByteBuf, Impulse> CODEC;
@@ -44,6 +44,7 @@ public class Packet {
         public void write(RegistryByteBuf buffer) {
             buffer.writeInt(id);
             buffer.writeFloat(this.mag);
+            buffer.writeFloat(this.mag2);
 
             buffer.writeFloat(this.x);
             buffer.writeFloat(this.y);
@@ -53,10 +54,12 @@ public class Packet {
         public static Impulse readPacket(RegistryByteBuf buffer) {
             int id = buffer.readInt();
             float mag = buffer.readFloat();
+            float mag2 = buffer.readFloat();
+
             float yaw = buffer.readFloat();
             float pitch = buffer.readFloat();
             float range = buffer.readFloat();
-            return new Impulse(id,mag,yaw, pitch, range);
+            return new Impulse(id,mag,mag2,yaw, pitch, range);
         }
 
         static {

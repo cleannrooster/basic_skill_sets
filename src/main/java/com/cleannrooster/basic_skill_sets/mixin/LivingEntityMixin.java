@@ -2,20 +2,23 @@ package com.cleannrooster.basic_skill_sets.mixin;
 
 import com.cleannrooster.basic_skill_sets.BasicSkillSets;
 import com.cleannrooster.basic_skill_sets.api.HitstopAccessor;
+import net.bettercombat.mixin.player.PlayerEntityMixin;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.spell_engine.api.spell.Spell;
 import net.spell_engine.api.tags.SpellEngineDamageTypeTags;
 import net.spell_engine.entity.SpellProjectile;
+import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.SpellDamageSource;
 import net.spell_power.api.SpellPowerTags;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,10 +26,39 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
+
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin implements HitstopAccessor {
-    public int hitstopTicks = 0;
-    private Vec3d velocityHitstop = Vec3d.ZERO;
+    protected int hitstopTicks = 0;
+    protected Vec3d velocityHitstop = Vec3d.ZERO;
+    protected int hitstopTime = 0;
+    protected boolean holster = false;
+
+
+    @Inject(at = @At("RETURN"), method = "getOffHandStack", cancellable = true)
+    public void  getMainHandStackHolster(CallbackInfoReturnable<ItemStack> returnable){
+        if(this.holster){
+                returnable.setReturnValue(ItemStack.EMPTY);
+
+        }
+    }
+    @Inject(at = @At("HEAD"), method = "swapHandStacks", cancellable = true)
+
+    private void swapHandStacksHolster(CallbackInfo callbackInfo) {
+        if(this.holster){
+            callbackInfo.cancel();
+
+        }
+    }
+    @Inject(at = @At("RETURN"), method = "getMainHandStack", cancellable = true)
+    public void  getOffHandStackHolster(CallbackInfoReturnable<ItemStack> returnable){
+        if(this.holster){
+                returnable.setReturnValue(ItemStack.EMPTY);
+
+        }
+    }
+
 
     private Vec3d impulseVector = Vec3d.ZERO;
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
@@ -35,11 +67,24 @@ public class LivingEntityMixin implements HitstopAccessor {
 
 
     }
+    public void setHitstopTime(int hitstop) {
+        this.hitstopTime = hitstop;
+    }
+    public int getHitstopTime(){
+        return hitstopTime;
+    };
     @Inject(at = @At("TAIL"), method = "tick", cancellable = true)
     public void tickHitstop( CallbackInfo info) {
         LivingEntity living = (LivingEntity) (Object) this;
+        Spell.Target.Area area = new Spell.Target.Area();
+        area.angle_degrees = 150;
+        List<Entity> list = TargetHelper.targetsFromArea(living,(living instanceof PlayerEntity player ? (float) player.getEntityInteractionRange() : 4 )*0.6F,area,null);
+        List<Entity> list2 = TargetHelper.targetsFromArea(living,living.getWidth()+0.5F,area,null);
+
+        boolean bool = !list.isEmpty();
+        boolean trueBool = !list2.isEmpty() || bool;
         if(!living.getWorld().isClient() &&   getImpulseVector() != null && getImpulseVector().length() > 0.02) {
-            //System.out.println(getImpulseVector().length());
+            var shouldSub = this.shouldClamp() && trueBool;
             if(!living.isOnGround()) {
                 setImpulseVector(getImpulseVector().multiply(0.8F));
             }
@@ -48,21 +93,33 @@ public class LivingEntityMixin implements HitstopAccessor {
             var defaultMovementSpeed = 0.1F;
             var entityMoveSpeed = living.getMovementSpeed();
             var entityMoveSpeedCoeff = 0.5F;
-            var coeff = 4F;
+            var coeff = 4F*BasicSkillSets.config.maxImpulse;
             var cap = (defaultMovementSpeed + entityMoveSpeed * entityMoveSpeedCoeff) *  coeff;
             var capSq = cap * cap;
-            living.setVelocity(
-                    living.getVelocity().lengthSquared() > capSq ?
-                            totalVelocity.normalize().multiply(living.getVelocity().length()) :
+            var finalVel =     (living.getVelocity().lengthSquared() > capSq ?
+                    totalVelocity.normalize().multiply(living.getVelocity().length()) :
                     totalVelocity.lengthSquared() > capSq ?
-                    totalVelocity.normalize().multiply(cap) :
-                    totalVelocity
+                            totalVelocity.normalize().multiply(cap) :
+                            totalVelocity);
+            var sub = (shouldSub ? totalVelocity.normalize().multiply(cap*0.5) : Vec3d.ZERO);
+            if(finalVel.lengthSquared() < sub.lengthSquared()){
+                finalVel = Vec3d.ZERO;
+            }
+            else{
+                finalVel = finalVel.subtract(sub);
+            }
+          /*  if(finalVel.lengthSquared() <= living.getVelocity().lengthSquared() && shouldSub){
+                finalVel = living.getVelocity();
+            }*/
+            living.setVelocity(
+                    finalVel
             );
-
-
-
-            setImpulseVector( getImpulseVector().multiply(0.666F));
+            setImpulseVector(  getImpulseVector().multiply(BasicSkillSets.config.impulseCoeff));
             living.velocityModified = true;
+        }
+        if(getImpulseVector() == null || getImpulseVector().length() < 0.02){
+            this.setShouldClamp(false);
+            this.setImpulseVector(Vec3d.ZERO);
         }
         if (this.getHitstopTicks() > 0) {
             if(getVelocityHitstop() != null) {
@@ -116,6 +173,7 @@ public class LivingEntityMixin implements HitstopAccessor {
 
             }
         }
+
     }
 
     @Override
@@ -162,6 +220,27 @@ public class LivingEntityMixin implements HitstopAccessor {
     @Override
     public void setLastAttackedTemporary(long time) {
         lastAttackedTemporary = time;
+    }
+
+    @Override
+    public boolean isHolster() {
+        return holster;
+    }
+    protected boolean shouldClamp = false;
+    @Override
+    public boolean shouldClamp() {
+        return     shouldClamp;
+
+    }
+
+    @Override
+    public void setShouldClamp(boolean shouldClamp) {
+        this.shouldClamp = shouldClamp;
+    }
+
+    @Override
+    public void setHolster(boolean holster) {
+            this.holster = holster;
     }
 
     @Inject(at = @At("HEAD"), method = "updateLimbs", cancellable = true)

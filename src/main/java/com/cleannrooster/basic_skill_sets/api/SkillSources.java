@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static net.spell_engine.api.spell.container.SpellContainerHelper.contentTypeForSpell;
 import static net.spell_engine.api.spell.container.SpellContainerHelper.createForShield;
 
 public class SkillSources {

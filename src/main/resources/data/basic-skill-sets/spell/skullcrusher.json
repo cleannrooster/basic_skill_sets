@@ -1,20 +1,21 @@
 {
   "school": "PHYSICAL_MELEE",
-  "range": 3.0,
+  "range": 0.0,
+  "range_mechanic": "MELEE",
   "tier": 0,
   "learn": {},
   "active": {
     "scroll": {},
     "cast": {
-      "duration": 1.25,
-      "animation": "basic-skill-sets:slam_jump",
+      "duration": 1.85,
+      "animation": { "id":"basic-skill-sets:2h_slam_start"},
       "sound": {
         "id": "spell_engine:generic_healing_casting"
       }
     }
   },
   "release": {
-    "animation": "basic-skill-sets:slam_end",
+    "animation": { "id":"basic-skill-sets:2h_slam_end"},
     "sound": {
       "id": "entity.generic.explode"
     }

@@ -22,7 +22,6 @@ import net.spell_engine.api.config.AttributeModifier;
 import net.spell_engine.api.item.weapon.SpellSwordItem;
 import net.spell_engine.api.item.weapon.SpellWeaponItem;
 import net.spell_engine.api.item.weapon.StaffItem;
-import net.spell_engine.api.item.weapon.Weapon;
 import net.spell_engine.api.spell.ExternalSpellSchools;
 import net.spell_power.api.SpellPower;
 import org.spongepowered.asm.mixin.Mixin;

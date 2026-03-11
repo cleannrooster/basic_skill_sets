@@ -9,17 +9,41 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
+import net.spell_engine.api.spell.Spell;
+import net.spell_engine.utils.TargetHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
+
 @Mixin(PlayerEntity.class)
 public class ClientPlayerMixin implements HitstopAccessor {
-    public int hitstopTicks = 0;
-    private Vec3d velocityHitstop;
-    private long lastAttackedTemporary = 0;
+    protected int hitstopTicks = 0;
+    protected int hitstopTime = 0;
+
+    protected Vec3d velocityHitstop;
+    protected long lastAttackedTemporary = 0;
+    protected boolean holster = false;
+    protected boolean shouldClamp;
+    public boolean isHolster() {
+        return BasicSkillSets.config.holster &&  holster;
+    }
+
+    @Override
+    public boolean shouldClamp() {
+        return shouldClamp;
+    }
+
+    public void setShouldClamp(boolean shouldClamp) {
+        this.shouldClamp = shouldClamp;
+    }
+
+    public void setHolster(boolean holster) {
+        this.holster = holster;
+    }
 
     @Inject(at = @At("TAIL"), method = "tick", cancellable = true)
     public void tickHitstop( CallbackInfo info) {
@@ -33,20 +57,32 @@ public class ClientPlayerMixin implements HitstopAccessor {
 
             }
         }
+        Spell.Target.Area area = new Spell.Target.Area();
+        area.angle_degrees = 150;
+        List<Entity> list = TargetHelper.targetsFromArea(living,(living instanceof PlayerEntity player ? (float) player.getEntityInteractionRange() : 4 )*0.8F,area,null);
+        List<Entity> list2 = TargetHelper.targetsFromArea(living,living.getWidth()+0.5F,area,null);
+
+        boolean bool = !list.isEmpty();
+        boolean trueBool = !list2.isEmpty() || bool;
+
         if (this.getHitstopTicks() > 0) {
-            living.limbAnimator.setSpeed(0);
-            living.setVelocity(0, 0, 0);
-            living.velocityDirty = true;
+            if(this.getHitstopTicks() > living.getWorld().getTime() - this.getHitstopTime()) {
+                living.limbAnimator.setSpeed(0);
+                living.setVelocity(0, 0, 0);
+                living.velocityDirty = true;
+            }
+            else{
+                this.setHitstop(0);
+                if(velocityHitstop != null){
+                    living.setVelocity(getVelocityHitstop());
+                    setVelocityHitstop(null);
+                    living.velocityDirty = true;
 
-            hitstopTicks--;
-        }
-        else
-        if(velocityHitstop != null){
-            living.setVelocity(getVelocityHitstop());
-            setVelocityHitstop(null);
-            living.velocityDirty = true;
+                }
+            }
 
         }
+
     }
 
 
@@ -64,6 +100,14 @@ public class ClientPlayerMixin implements HitstopAccessor {
     public void setHitstop(int hitstop) {
         this.hitstopTicks = hitstop;
     }
+    @Override
+    public void setHitstopTime(int hitstop) {
+        this.hitstopTime = hitstop;
+    }
+    public int getHitstopTime(){
+        return hitstopTime;
+    };
+
     public Vec3d impulseVector = Vec3d.ZERO;
 
     @Override

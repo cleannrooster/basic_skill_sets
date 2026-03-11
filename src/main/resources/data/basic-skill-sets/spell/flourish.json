@@ -6,12 +6,12 @@
   "active": {
     "scroll": {},
     "cast": {
-      "animation": "spell_engine:one_handed_healing_charge",
+      "animation": { "id":"spell_engine:one_handed_healing_charge"},
         "duration": 0.2
     }
   },
   "release": {
-    "animation": "basic-skill-sets:cleave",
+    "animation": { "id":"basic-skill-sets:cleave"},
     "sound": {
       "id": "minecraft:entity.player.attack.knockback"
     }

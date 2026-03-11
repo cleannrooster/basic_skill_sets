@@ -6,12 +6,12 @@
   "active": {
     "scroll": {},
     "cast": {
-      "animation": "basic-skill-sets:preslice",
+      "animation": { "id":"basic-skill-sets:preslice"},
       "duration": 1
     }
   },
   "release": {
-    "animation": "basic-skill-sets:slice",
+    "animation": { "id":"basic-skill-sets:slice"},
     "sound": {
       "id": "minecraft:entity.player.attack.crit"
     }

@@ -5,6 +5,7 @@
   "learn": {},
   "active": {
     "cast": {
+      "animation": { "id":"spell_engine:one_handed_healing_charge"},
       "duration": 0.2
     }
   },
@@ -13,7 +14,7 @@
     "aim": {}
   },
   "release": {
-    "animation": "spell_engine:one_handed_throw_release_instant"
+    "animation": { "id":"spell_engine:one_handed_throw_release_instant"}
   },
   "deliver": {
       "type": "PROJECTILE",

@@ -8,8 +8,8 @@
     "scroll": {},
     "cast": {
       "duration": 2.0,
-      "channel_ticks": 4,
-      "animation": "basic-spell-sets:whirl",
+      "channel_ticks": 20,
+      "animation": { "id":"basic-spell-sets:whirl"},
       "movement_speed": 1.0,
       "sound": {
         "id": "spell_engine:generic_frost_casting"

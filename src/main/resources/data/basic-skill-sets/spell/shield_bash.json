@@ -8,7 +8,7 @@
   "passive": {},
 
   "release": {
-    "animation": "basic-skill-sets:shield_bash",
+    "animation": { "id":"basic-skill-sets:shield_bash"},
     "sound": {
       "id": "minecraft:entity.player.attack.knockback"
     }

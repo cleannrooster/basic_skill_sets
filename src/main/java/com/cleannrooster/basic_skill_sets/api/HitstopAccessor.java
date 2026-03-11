@@ -10,5 +10,11 @@ public interface HitstopAccessor {
     void setImpulseVector(Vec3d vec3d);
     Vec3d getImpulseVector();
     Vec3d getVelocityHitstop();
+    void setHitstopTime(int hitstopTime);
+    int getHitstopTime();
     void setLastAttackedTemporary(long time);
+    boolean isHolster();
+    boolean shouldClamp();
+    void setShouldClamp(boolean shouldClamp);
+    void setHolster(boolean holster);
 }

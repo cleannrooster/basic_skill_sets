@@ -8,7 +8,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.spell_engine.api.item.SpellBooks;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.api.spell.event.SpellHandlers;
 import net.spell_engine.api.spell.registry.SpellRegistry;
@@ -51,7 +50,7 @@ public class Spells {
                     ParticleHelper.sendBatches(playerEntity, registryEntry.value().release.particles);
                     SoundHelper.playSound(world, playerEntity, registryEntry.value().release.sound);
                     AnimationHelper.sendAnimation(playerEntity, (Collection)trackingPlayers.get(), SpellCast.Animation.RELEASE, registryEntry.value().release.animation, 1.0F);
-                    SpellHelper.imposeCooldown(playerEntity, SpellContainerSource.getFirstSourceOfSpell(Identifier.of(registryEntry.getIdAsString()),playerEntity),Identifier.of(registryEntry.getIdAsString()), registryEntry,1.0F);
+                    SpellHelper.imposeCooldown(playerEntity, SpellContainerSource.getFirstSourceOfSpell(Identifier.of(registryEntry.getIdAsString()),playerEntity), registryEntry,1.0F);
                     return true;
                 }
             }

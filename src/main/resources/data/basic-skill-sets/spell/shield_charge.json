@@ -7,7 +7,7 @@
   "active": {
     "cast": {
       "duration": 6,
-      "animation": "basic-skill-sets:shield_charge",
+      "animation": { "id":"basic-skill-sets:shield_charge"},
       "channel_ticks": 1
     }
   },
@@ -28,7 +28,7 @@
     "sound": {
       "id": "minecraft:entity.player.attack.knockback"
     },
-    "animation": "basic-skill-sets:cleave"
+    "animation": { "id":"basic-skill-sets:cleave"}
   },
   "impacts": [
     {

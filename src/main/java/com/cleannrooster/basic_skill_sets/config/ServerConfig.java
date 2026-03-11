@@ -3,6 +3,8 @@ package com.cleannrooster.basic_skill_sets.config;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
+import net.spell_engine.api.spell.Spell;
+import net.spell_engine.entity.SpellProjectile;
 
 @Config(
     name = "server_v1"
@@ -10,6 +12,10 @@ import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 public class ServerConfig implements ConfigData {
     @Comment("Forward Lunge on attack")
     public boolean moveAttack = false;
+    @Comment("Forward Lunge on attack Decay Coeff")
+    public float impulseCoeff = 0.4F;
+    @Comment("Forward Lunge on attack Max Coeff")
+    public float maxImpulse = 1.6F;
     @Comment("Impact recoil")
     public boolean impactRecoil = false;
     @Comment("Enemy Directional Impact Move")
@@ -26,4 +32,10 @@ public class ServerConfig implements ConfigData {
     public boolean comboSpeed = false;
     @Comment("Weapons are sized up depending on your entity range")
     public boolean rangeSize = false;
+    @Comment("Enable Holster")
+    public boolean holster = false;
+    @Comment("Holster Speed Boost")
+    public float holsterBoost = 1.4000F;
+    @Comment("Spread heals over (healSpread) seconds")
+    public float healSpread = 0;
 }

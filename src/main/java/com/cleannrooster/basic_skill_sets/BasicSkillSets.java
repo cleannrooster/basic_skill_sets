@@ -115,9 +115,20 @@ public class BasicSkillSets implements ModInitializer {
         config = AutoConfig.getConfigHolder(ServerConfigWrapper.class).getConfig().server;
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((ServerLifecycleEvents.SyncDataPackContents)(player, joined) -> ServerPlayNetworking.send(player, new ConfigSync(config)));
         PayloadTypeRegistry.playS2C().register(ConfigSync.PACKET_ID, ConfigSync.CODEC);
+        PayloadTypeRegistry.playS2C().register(Packet.HolsterAssert.PACKET_ID, Packet.HolsterAssert.CODEC);
+
         PayloadTypeRegistry.playC2S().register(Packet.Packets.PACKET_ID, Packet.Packets.CODEC);
         PayloadTypeRegistry.playC2S().register(Packet.Impulse.PACKET_ID, Packet.Impulse.CODEC);
         PayloadTypeRegistry.playC2S().register(Packet.SlowFirst.PACKET_ID, Packet.SlowFirst.CODEC);
+        PayloadTypeRegistry.playC2S().register(Packet.Holster.PACKET_ID, Packet.Holster.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(Packet.Holster.PACKET_ID, (payload, context) ->{
+                    if(context.player() instanceof HitstopAccessor hitstopAccessor){
+                            hitstopAccessor.setHolster(payload.bool() || !hitstopAccessor.isHolster());
+
+                    }
+                }
+
+        );
         ServerPlayNetworking.registerGlobalReceiver(Packet.SlowFirst.PACKET_ID, (payload, context) ->{
                     if(context.player() instanceof HitstopAccessor hitstopAccessor){
                         hitstopAccessor.setLastAttackedTemporary(context.player().getWorld().getTime());
@@ -127,6 +138,17 @@ public class BasicSkillSets implements ModInitializer {
         );
         ServerPlayNetworking.registerGlobalReceiver(Packet.Impulse.PACKET_ID, (payload, context) ->{
                     Entity entity = context.player().getWorld().getEntityById(payload.id());
+                    if(payload.shouldCheck()) {
+                        Spell.Target.Area area = new Spell.Target.Area();
+
+                        area.angle_degrees = 150;
+                        List<Entity> list = TargetHelper.targetsFromArea(context.player(),  (float) context.player().getEntityInteractionRange() * 1.4F, area, null);
+
+                        if (context.player() instanceof HitstopAccessor accessor) {
+                            accessor.setShouldClamp(!list.isEmpty());
+                        }
+                    }
+
                     if(entity instanceof HitstopAccessor hitstopAccessor) {
                         hitstopAccessor.setImpulseVector (hitstopAccessor.getImpulseVector().multiply(payload.mag2()).add((new Vec3d(payload.x(), payload.y(), payload.z()))).multiply(payload.mag()));
                         entity.setVelocity(entity.getVelocity());
@@ -160,7 +182,6 @@ public class BasicSkillSets implements ModInitializer {
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(Packet.Packets.PACKET_ID, (payload, context) -> spawnParticlesSlash(context.player(), context.player().getServerWorld(), payload.yaw(), payload.pitch(), payload.range()));
-        ServerLifecycleEvents.SERVER_STARTING.register((ServerLifecycleEvents.ServerStarting)(server) -> sources = new SkillSources(skills));
         ServerLifecycleEvents.SERVER_STARTING.register((ServerLifecycleEvents.ServerStarting)(server) -> clientConfig = config);
         CombatEvents.ENTITY_SHIELD_BLOCK.register((CombatEvents.EntityShieldBlock)(c) -> {
             Entity patt0$temp = c.entity();
@@ -184,19 +205,23 @@ public class BasicSkillSets implements ModInitializer {
         ServerTickEvents.END_WORLD_TICK.register((server) -> {
             if(!server.getPlayers().isEmpty()){
                 for(PlayerEntity player: server.getPlayers()){
+                    if(player.age % 100 == 0 &&  player instanceof ServerPlayerEntity playerEntity && player instanceof HitstopAccessor accessor){
+                        ServerPlayNetworking.send(playerEntity,new Packet.HolsterAssert(accessor.isHolster()));
+                    }
                     if( player instanceof SpellCasterEntity entity){
                         if( entity.getSpellCastProcess() != null && entity.getCurrentSpell() != null && entity.isCastingSpell() &&
                                 (entity.getCurrentSpell().equals(SpellRegistry.from(server).get(Identifier.of("rogues","whirlwind")))
                         || entity.getCurrentSpell().equals(SpellRegistry.from(server).get(Identifier.of("spellbladenext","eviscerate")))
                         || entity.getCurrentSpell().equals(SpellRegistry.from(server).get(Identifier.of("spellbladenext","whirling_assault"))))){
                             RegistryEntry<Spell> spell = entity.getSpellCastProcess().spell();
-                            spawnParticlesSlash(player,server,player.age % 10 * 36,(player.age % 2 == 0 ? 180 : 0) +270+player.getRandom().nextBetween(-15,15),1.0F, (float) SpellHelper.getRange(player,spell));
+                            spawnParticlesSlash(player,server,player.age % 10 * 36, 270+player.getRandom().nextBetween(-15,15),1.0F, (float) SpellHelper.getRange(player,spell));
 
                         }
                     }
                 }
             }
         });
+
         Spells.registerDeliveries();
         LOGGER.info("Hello Fabric world!");
 	}
@@ -223,27 +248,39 @@ public class BasicSkillSets implements ModInitializer {
                         vec3d2 = VectorHelper.rotateTowards(vec3d2, new Vec3d((double)0.0F, (double)-1.0F, (double)0.0F), (double)0);
                         Vec3d vec3d4 = vec3d2.add(entity.getEyePos().getX(), entity.getEyeY(), entity.getEyePos().getZ());
                         double y = entity.getY() + (double)(entity.getHeight() / 2.0F);
+                        double sigma = 0.6;
+                        double distance = vec3d2.length();
+                        double p = (Math.abs(range-distance) >= range) ? 0.0 : Math.exp(-((range-distance) * (range-distance)) / ((range-2*entity.getWidth()) * sigma * sigma));
+                        double p2 = (Math.abs(range-distance) >= range) ? 0.0 : Math.exp(-((range-distance) * (range-distance)) / ((1) * sigma * sigma));
 
                         for(ServerPlayerEntity player : PlayerLookup.tracking(entity)) {
-                            if (2.0F * range - (float)player.getRandom().nextInt(2 * Math.max(0, (int)((double)range - -x2)) + 1) == 2.0F * range) {
-                                if (finalIi % 4 == 1) {
-                                    serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                    serverWorld.spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                }
-
-                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
                             }
                         }
 
                         if (entity instanceof ServerPlayerEntity) {
-                            ServerPlayerEntity player = (ServerPlayerEntity)entity;
-                            if (2.0F * range - (float)player.getRandom().nextInt(2 * Math.max(0, (int)((double)range - -x2)) + 1) == 2.0F * range) {
-                                if (finalIi % 4 == 1) {
-                                    serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                    serverWorld.spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                }
-
-                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            ServerPlayerEntity player = (ServerPlayerEntity) entity;
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPELL, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPELL, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
                             }
                         }
                     }
@@ -277,27 +314,39 @@ public class BasicSkillSets implements ModInitializer {
                         vec3d2 = VectorHelper.rotateTowards(vec3d2, new Vec3d((double)0.0F, (double)-1.0F, (double)0.0F), (double)entity.getPitch());
                         Vec3d vec3d4 = vec3d2.add(entity.getEyePos().getX(), entity.getEyeY(), entity.getEyePos().getZ());
                         double y = entity.getY() + (double)(entity.getHeight() / 2.0F);
+                        double sigma = 0.6;
+                        double distance = vec3d2.length();
+                        double p = (Math.abs(range-distance) >= range) ? 0.0 : Math.exp(-((range-distance) * (range-distance)) / ((range-2*entity.getWidth()) * sigma * sigma));
+                        double p2 = (Math.abs(range-distance) >= range) ? 0.0 : Math.exp(-((range-distance) * (range-distance)) / ((1) * sigma * sigma));
 
                         for(ServerPlayerEntity player : PlayerLookup.tracking(entity)) {
-                            if (2.0F * range - (float)player.getRandom().nextInt(2 * Math.max(0, (int)((double)range - -x2)) + 1) == 2.0F * range) {
-                                if (finalIi % 4 == 1) {
-                                    serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                    serverWorld.spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                }
-
-                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPELL, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPELL, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
                             }
                         }
 
                         if (entity instanceof ServerPlayerEntity) {
                             ServerPlayerEntity player = (ServerPlayerEntity)entity;
-                            if (2.0F * range - (float)player.getRandom().nextInt(2 * Math.max(0, (int)((double)range - -x2)) + 1) == 2.0F * range) {
-                                if (finalIi % 4 == 1) {
-                                    serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                    serverWorld.spawnParticles(player, ParticleTypes.ELECTRIC_SPARK, true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
-                                }
-
-                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPARK, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPELL, SpellEngineParticles.MagicParticles.Motion.FLOAT).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double)0.0F, (double)0.0F, (double)0.0F, (double)0.0F);
+                            }
+                            if (player.getRandom().nextFloat() < p2) {
+                                serverWorld.spawnParticles(player, SpellEngineParticles.MagicParticles.get(SpellEngineParticles.MagicParticles.Shape.SPELL, SpellEngineParticles.MagicParticles.Motion.BURST).particleType(), true, vec3d4.getX(), vec3d4.getY(), vec3d4.getZ(), 1, (double) 0.0F, (double) 0.0F, (double) 0.0F, (double) 0.0F);
                             }
                         }
                     }

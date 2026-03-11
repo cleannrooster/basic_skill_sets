@@ -5,7 +5,7 @@
   "learn": {},
   "active": {
     "cast": {
-      "animation": "basic-skill-sets:spearthrow_charge",
+      "animation": { "id":"basic-skill-sets:spearthrow_charge"},
 
       "duration": 1
     }
@@ -15,7 +15,7 @@
     "aim": {}
   },
   "release": {
-    "animation": "basic-skill-sets:spearthrow_throw",
+    "animation": { "id":"basic-skill-sets:spearthrow_throw"},
     "sound": {
       "id": "minecraft:entity.player.attack.sweep"
     }
@@ -48,7 +48,7 @@
           }
         }
     },
-    "animation": "basic-skill-sets:spearthrow_throw",
+    "animation": { "id":"basic-skill-sets:spearthrow_throw"},
     "sound": {
       "id": "minecraft:entity.player.attack.sweep"
     }

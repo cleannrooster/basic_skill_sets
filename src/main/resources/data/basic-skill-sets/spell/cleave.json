@@ -6,7 +6,7 @@
   "active": {
     "scroll": {},
     "cast": {
-      "animation": "spell_engine:one_handed_healing_charge",
+      "animation": { "id":"spell_engine:one_handed_healing_charge"},
       "sound": {
         "id": "spell_engine:generic_healing_casting"
       },
@@ -23,7 +23,7 @@
     }
   },
   "release": {
-    "animation": "basic-skill-sets:cleave",
+    "animation": { "id":"basic-skill-sets:cleave"},
     "particles": [
       {
         "particle_id": "spell_engine:magic_holy_spark_ascend",

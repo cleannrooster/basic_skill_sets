@@ -125,6 +125,18 @@ public class ClientPlayerMixin implements HitstopAccessor {
         this.lastAttackedTemporary = time;
     }
 
+    protected long lastHitstopAppliedTime = 0;
+
+    @Override
+    public long getLastHitstopAppliedTime() {
+        return lastHitstopAppliedTime;
+    }
+
+    @Override
+    public void setLastHitstopAppliedTime(long time) {
+        this.lastHitstopAppliedTime = time;
+    }
+
     @Override
     public Vec3d getVelocityHitstop() {
         return velocityHitstop;
@@ -137,12 +149,15 @@ public class ClientPlayerMixin implements HitstopAccessor {
     public void onAttackingHitstopTail(Entity target, CallbackInfo info) {
         LivingEntity living = (LivingEntity) (Object) this;
         if(BasicSkillSets.config.hitstopEnemies && target instanceof HitstopAccessor hitstopAccessor && target instanceof LivingEntity livingEntity ) {
-
-            hitstopAccessor.setHitstop((int) Math.ceil(2*(1.6F/living.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED))));
-            if (hitstopAccessor.getVelocityHitstop() == null) {
-                hitstopAccessor.setVelocityHitstop(livingEntity.getVelocity());
-                livingEntity.setVelocity(Vec3d.ZERO);
-                livingEntity.velocityDirty = true;
+            int hitstunCooldown = (int) Math.min(10, Math.ceil(20.0 / living.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)));
+            if (target.getWorld().getTime() - hitstopAccessor.getLastHitstopAppliedTime() >= hitstunCooldown) {
+                hitstopAccessor.setHitstop((int) Math.ceil(2*(1.6F/living.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED))));
+                hitstopAccessor.setLastHitstopAppliedTime(target.getWorld().getTime());
+                if (hitstopAccessor.getVelocityHitstop() == null) {
+                    hitstopAccessor.setVelocityHitstop(livingEntity.getVelocity());
+                    livingEntity.setVelocity(Vec3d.ZERO);
+                    livingEntity.velocityDirty = true;
+                }
             }
         }
     }

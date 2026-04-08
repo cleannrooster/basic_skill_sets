@@ -96,11 +96,7 @@ public class BasicSkillSetsClient implements ClientModInitializer {
         });
 
 
-        ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, lines)->{
-            if(itemStack.getItem() instanceof ShieldItem shieldItem){
-                lines.add(Text.translatable("text.basic-skill-sets.shield").formatted(Formatting.GRAY));
-            }
-        });
+
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if(client.player != null && ((SpellCasterEntity)client.player).getCurrentSpell() != null &&
                     (((SpellCasterEntity)client.player).getCurrentSpell().equals(SpellRegistry.from(client.world).get(Identifier.of(BasicSkillSets.MOD_ID
@@ -117,7 +113,7 @@ public class BasicSkillSetsClient implements ClientModInitializer {
         });
         ItemTooltipCallback.EVENT.register((ItemTooltipCallback)(itemStack, tooltipContext, tooltipType, lines) -> {
             Item patt0$temp = itemStack.getItem();
-            if (patt0$temp instanceof ShieldItem shieldItem) {
+            if ( patt0$temp instanceof ShieldItem shieldItem) {
                 lines.add(Text.translatable("text.basic-skill-sets.shield").formatted(Formatting.GRAY));
             }
 

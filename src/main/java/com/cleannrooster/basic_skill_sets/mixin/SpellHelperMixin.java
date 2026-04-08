@@ -34,11 +34,14 @@ public class SpellHelperMixin {
         CallbackInfoReturnable<Boolean> cir) {
         if (  cir.getReturnValue() && impact.action.type == Spell.Impact.Action.Type.DAMAGE && impact != null && spellEntry.value().school != null   && target instanceof HitstopAccessor hitstopAccessor &&  spellEntry.value().school.archetype.equals(SpellSchool.Archetype.MAGIC)) {
             if(BasicSkillSets.config.hitstopEnemies) {
-                hitstopAccessor.setHitstop(Math.max(hitstopAccessor.getHitstopTicks(), (int) (impact.action.damage.spell_power_coefficient * 2)));
-                //living.limbAnimator.setSpeed(0);
-                if (hitstopAccessor.getVelocityHitstop() == null) {
-                    hitstopAccessor.setVelocityHitstop(target.getVelocity());
-                    target.setVelocity(Vec3d.ZERO);
+                if (world.getTime() - hitstopAccessor.getLastHitstopAppliedTime() >= 10) {
+                    hitstopAccessor.setHitstop(Math.max(hitstopAccessor.getHitstopTicks(), (int) (impact.action.damage.spell_power_coefficient * 2)));
+                    hitstopAccessor.setLastHitstopAppliedTime(world.getTime());
+                    //living.limbAnimator.setSpeed(0);
+                    if (hitstopAccessor.getVelocityHitstop() == null) {
+                        hitstopAccessor.setVelocityHitstop(target.getVelocity());
+                        target.setVelocity(Vec3d.ZERO);
+                    }
                 }
             }
             if(BasicSkillSets.config.projectileSelfKnockback){

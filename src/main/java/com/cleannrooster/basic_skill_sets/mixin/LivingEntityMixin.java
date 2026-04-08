@@ -163,14 +163,17 @@ public class LivingEntityMixin implements HitstopAccessor {
             else
             if (source.isDirect() && source.getAttacker() instanceof HitstopAccessor hitstopAccessor && source.getAttacker() instanceof PlayerEntity hurt
                     && hurt.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED) != null) {
-                this.setHitstop(Math.max(this.getHitstopTicks(), (int) Math.ceil(2 * (1.6F / hurt.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)))));
-                //living.limbAnimator.setSpeed(0);
+                int hitstunCooldown = (int) Math.min(10, Math.ceil(20.0 / hurt.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)));
+                if (living.getWorld().getTime() - this.getLastHitstopAppliedTime() >= hitstunCooldown) {
+                    this.setHitstop(Math.max(this.getHitstopTicks(), (int) Math.ceil(2 * (1.6F / hurt.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED)))));
+                    this.setLastHitstopAppliedTime(living.getWorld().getTime());
+                    //living.limbAnimator.setSpeed(0);
 
-                if (this.getVelocityHitstop() == null) {
-                    this.setVelocityHitstop(living.getVelocity());
-                    living.setVelocity(Vec3d.ZERO);
+                    if (this.getVelocityHitstop() == null) {
+                        this.setVelocityHitstop(living.getVelocity());
+                        living.setVelocity(Vec3d.ZERO);
+                    }
                 }
-
             }
         }
 
@@ -216,10 +219,21 @@ public class LivingEntityMixin implements HitstopAccessor {
         return velocityHitstop;
     }
     private long lastAttackedTemporary = 0;
+    private long lastHitstopAppliedTime = 0;
 
     @Override
     public void setLastAttackedTemporary(long time) {
         lastAttackedTemporary = time;
+    }
+
+    @Override
+    public long getLastHitstopAppliedTime() {
+        return lastHitstopAppliedTime;
+    }
+
+    @Override
+    public void setLastHitstopAppliedTime(long time) {
+        lastHitstopAppliedTime = time;
     }
 
     @Override

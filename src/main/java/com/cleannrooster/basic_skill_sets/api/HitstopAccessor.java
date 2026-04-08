@@ -13,6 +13,8 @@ public interface HitstopAccessor {
     void setHitstopTime(int hitstopTime);
     int getHitstopTime();
     void setLastAttackedTemporary(long time);
+    long getLastHitstopAppliedTime();
+    void setLastHitstopAppliedTime(long time);
     boolean isHolster();
     boolean shouldClamp();
     void setShouldClamp(boolean shouldClamp);

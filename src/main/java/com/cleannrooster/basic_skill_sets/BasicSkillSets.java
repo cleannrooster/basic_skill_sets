@@ -221,7 +221,7 @@ public class BasicSkillSets implements ModInitializer {
                 }
             }
         });
-
+        SkillSources.init();
         Spells.registerDeliveries();
         LOGGER.info("Hello Fabric world!");
 	}

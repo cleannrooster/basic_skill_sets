@@ -38,4 +38,8 @@ public class ServerConfig implements ConfigData {
     public float holsterBoost = 1.4000F;
     @Comment("Spread heals over (healSpread) seconds")
     public float healSpread = 0;
+    @Comment("Shield flashes white on a successful block")
+    public boolean shieldFlash = true;
+    @Comment("Delay in seconds after getting hit before saturation healing takes place.")
+    public double saturationDelay = 0D;
 }

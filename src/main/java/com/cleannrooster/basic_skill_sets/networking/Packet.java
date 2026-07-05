@@ -120,6 +120,28 @@ public class Packet {
             CODEC = PacketCodec.of(Impulse::write, Impulse::readPacket);
         }
     }
+    public record ShieldFlash(int entityId) implements CustomPayload {
+        public static Identifier ID = Identifier.of("basic-skill-sets", "shield_flash");
+        public static final CustomPayload.Id<ShieldFlash> PACKET_ID;
+        public static final PacketCodec<RegistryByteBuf, ShieldFlash> CODEC;
+
+        public CustomPayload.Id<? extends CustomPayload> getId() {
+            return PACKET_ID;
+        }
+
+        public void write(RegistryByteBuf buffer) {
+            buffer.writeInt(this.entityId);
+        }
+
+        public static ShieldFlash readPacket(RegistryByteBuf buffer) {
+            return new ShieldFlash(buffer.readInt());
+        }
+
+        static {
+            PACKET_ID = new CustomPayload.Id<>(ID);
+            CODEC = PacketCodec.of(ShieldFlash::write, ShieldFlash::readPacket);
+        }
+    }
     public record SlowFirst() implements CustomPayload {
         public static Identifier ID = Identifier.of("basic-skill-sets", "first_attack");
         public static final CustomPayload.Id<SlowFirst> PACKET_ID;

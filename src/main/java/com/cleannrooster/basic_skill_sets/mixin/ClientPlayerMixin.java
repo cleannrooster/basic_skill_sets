@@ -2,12 +2,18 @@ package com.cleannrooster.basic_skill_sets.mixin;
 
 import com.cleannrooster.basic_skill_sets.BasicSkillSets;
 import com.cleannrooster.basic_skill_sets.api.HitstopAccessor;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.utils.TargetHelper;
@@ -18,6 +24,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+
+import static com.cleannrooster.basic_skill_sets.BasicSkillSets.MOD_ID;
+import static net.minecraft.entity.attribute.EntityAttributes.GENERIC_ATTACK_SPEED;
 
 @Mixin(PlayerEntity.class)
 public class ClientPlayerMixin implements HitstopAccessor {
@@ -44,16 +53,23 @@ public class ClientPlayerMixin implements HitstopAccessor {
     public void setHolster(boolean holster) {
         this.holster = holster;
     }
-
+    private static final Multimap<RegistryEntry<EntityAttribute>, EntityAttributeModifier> map;
+    static {
+        map = HashMultimap.create();
+        map.put(GENERIC_ATTACK_SPEED, new EntityAttributeModifier(
+                Identifier.of(MOD_ID, "attack_speed_penalty_airborne"),
+                0.4F, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+        ));
+    }
     @Inject(at = @At("TAIL"), method = "tick", cancellable = true)
     public void tickHitstop( CallbackInfo info) {
         LivingEntity living = (LivingEntity) (Object) this;
         if(!living.getWorld().isClient()){
             if(lastAttackedTemporary == 0 || living.getWorld().getTime() - lastAttackedTemporary > 80){
-                living.getAttributes().removeModifiers(BasicSkillSets.map);
+                living.getAttributes().removeModifiers(map);
             }
             else{
-                living.getAttributes().addTemporaryModifiers(BasicSkillSets.map);
+                living.getAttributes().addTemporaryModifiers(map);
 
             }
         }

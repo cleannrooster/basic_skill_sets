@@ -1,7 +1,10 @@
 package com.cleannrooster.basic_skill_sets.mixin;
 
 import com.cleannrooster.basic_skill_sets.BasicSkillSets;
+import com.cleannrooster.basic_skill_sets.api.CombatTrackerAccess;
 import com.cleannrooster.basic_skill_sets.api.HitstopAccessor;
+import com.cleannrooster.basic_skill_sets.config.ServerConfig;
+import com.mojang.authlib.GameProfile;
 import net.bettercombat.mixin.player.PlayerEntityMixin;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.*;
@@ -9,8 +12,10 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.api.tags.SpellEngineDamageTypeTags;
 import net.spell_engine.entity.SpellProjectile;
@@ -29,11 +34,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(LivingEntity.class)
-public class LivingEntityMixin implements HitstopAccessor {
+public  class LivingEntityMixin  implements CombatTrackerAccess, HitstopAccessor {
     protected int hitstopTicks = 0;
     protected Vec3d velocityHitstop = Vec3d.ZERO;
     protected int hitstopTime = 0;
     protected boolean holster = false;
+
+
 
 
     @Inject(at = @At("RETURN"), method = "getOffHandStack", cancellable = true)
@@ -150,6 +157,25 @@ public class LivingEntityMixin implements HitstopAccessor {
         }
     }*/
 
+    private long lastCombatTick = 0;
+
+    @Inject(method = "damage", at = @At("RETURN"))
+    private void onDamageSaturation(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (!cir.getReturnValue()) return;
+        if (!((Object)this instanceof PlayerEntity player)) return;
+
+        lastCombatTick = player.getWorld().getTime();
+    }
+
+    public boolean isInCombatBasicSkills() {
+        if (!((Object)this instanceof PlayerEntity player)) return false;
+
+        long delayTicks = (long)(BasicSkillSets.config.saturationDelay * 20);
+
+        return delayTicks > 0
+                && lastCombatTick != 0
+                && player.getWorld().getTime() - lastCombatTick < delayTicks;
+    }
     @Inject(at = @At("RETURN"), method = "damage", cancellable = true)
     protected void applyDamageHitstop(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         LivingEntity living = (LivingEntity) (Object) this;

@@ -9,12 +9,15 @@
       "SpellHelperMixin",
       "ClientPlayerMixin",
       "PlayerMixin",
-      "PlayerMixinTwo"
-
+      "PlayerMixinTwo",
+      "HungerManagerMixin"
 
     ],
   "client": [
-    "HeldItemRendererMixin"
+    "HeldItemRendererMixin",
+    "ItemRendererMixin",
+    "OverlayTextureMixin"
+
   ],
 	"injectors": {
 		"defaultRequire": 1
